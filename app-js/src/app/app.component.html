@@ -1,0 +1,49 @@
+<h3 class="first">Employes CRUD</h3>
+
+<p-dataTable [value]="employees" [(selection)]="selection" [rows]="rowsNumb" [totalRecords]="totalRecords" (onRowSelect)="rowSelChange()" (onRowUnselect)="rowSelChange()" (onHeaderCheckboxToggle)=rowSelChange() [lazy]="true" (onLazyLoad)="loadData($event)" [paginator]="true">
+  <p-column [style]="{'width':'38px'}" selectionMode="multiple"></p-column>
+  <p-column *ngFor="let col of cols" [field]="col.field" [header]="col.header" [sortable]="!isInDetail(col.field)">
+    <template pTemplate="header">
+      <span>
+        <button type="button" pButton icon="fa fa-close" (click)="toggleDetail(col.field)"></button>
+      </span>
+      <span>{{col.header}}</span>
+      <div *ngIf="isInDetail(col.field)">{{col.field}}</div>
+    </template>
+  </p-column>
+  <p-footer>
+    <div class="ui-helper-clearfix" style="width:100%">
+      <button type="button" pButton icon="fa-plus" style="float:left" (click)="showDialog()" label="{{newEmployee?'Add':'Edit'}}"></button>
+      <button *ngIf="(selection.length>0)" type="button" pButton icon="fa-plus" style="float:left" (click)="delete()" label="delete" ></button>
+    </div>
+  </p-footer>
+</p-dataTable>
+
+<p-dialog header="Employee Details" [(visible)]="displayDialog" [responsive]="true" showEffect="fade" [modal]="true" (onAfterHide)="onClose()">
+    <div class="ui-grid ui-grid-responsive ui-fluid" *ngIf="employees">
+        <div class="ui-grid-row">
+            <div class="ui-grid-col-4"><label for="id">Id</label></div>
+            <div class="ui-grid-col-8"><p-spinner id="id" size="3" [(ngModel)]="employee.id"></p-spinner></div>
+        </div>
+        <div class="ui-grid-row">
+            <div class="ui-grid-col-4"><label [style.color]="employeeErrors.name.hasError?'red':'black'" for="name">Name</label></div>
+            <div class="ui-grid-col-8"><input pText size="10" id="name" [(ngModel)]="employee.name"/></div>
+        </div>
+        <div *ngIf="employeeErrors.name.hasError" style="margin-bottom: 10px">{{employeeErrors.name.value}}</div>
+        <div class="ui-grid-row">
+            <div class="ui-grid-col-4"><label [style.color]="employeeErrors.salary.hasError?'red':'black'" for="salary">Salary</label></div>
+            <div class="ui-grid-col-8"><p-spinner size="3" id="salary" [(ngModel)]="employee.salary" ></p-spinner></div>
+        </div>
+        <div *ngIf="employeeErrors.age.hasError" style="margin-bottom: 10px">{{employeeErrors.salary.value}}</div>
+        <div class="ui-grid-row">
+            <div class="ui-grid-col-4"><label [style.color]="employeeErrors.age.hasError?'red':'black'" for="age">Age</label></div>
+            <div class="ui-grid-col-8"><p-spinner size="3" id="age" [(ngModel)]="employee.age" ></p-spinner></div>
+        </div>
+        <div *ngIf="employeeErrors.age.hasError" style="margin-bottom: 10px">{{employeeErrors.age.value}}</div>
+    </div>
+    <p-footer>
+        <div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix">
+            <button type="button" pButton icon="fa-check" (click)="save()" label="Save"></button>
+        </div>
+    </p-footer>
+</p-dialog>
