@@ -6,7 +6,6 @@ import {
   ResponseOptions, XSRFStrategy, JsonpModule, Http
 } from '@angular/http';
 
-import { AppComponent } from './app.component';
 
 import { MessagesModule } from 'primeng/primeng';
 import { InputTextModule } from 'primeng/primeng';
@@ -20,16 +19,17 @@ import { RouterModule } from '@angular/router';
 import { FieldsetModule } from 'primeng/primeng';
 import { SplitButtonModule } from 'primeng/primeng';
 import { SpinnerModule } from 'primeng/primeng';
-import { ProvidersManagment } from './providers.management'
-import { EmployeeService } from './shared/employee.service'
-import { EmployeeServiceImp } from './shared/employee.serviceimp'
-import { EmployeeServiceMock } from './mock/employee.service.mock'
-
-let providersManagment = new ProvidersManagment();
+import { AppComponent } from "app/app.component";
+import { HomeComponent } from "app/home/home.component";
+import { routing } from "app/app.routing";
+import { EmployeeService } from "app/shared/employee.service";
+import { EmployeeServiceImp } from "app/shared/employee.serviceimp";
+import { EmployeeServiceMock } from "app/mock/employee.service.mock";
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    HomeComponent
   ],
   imports: [
     BrowserModule,
@@ -46,16 +46,18 @@ let providersManagment = new ProvidersManagment();
     JsonpModule,
     TreeModule,
     MenuModule,
-    RouterModule.forRoot([]),
     FieldsetModule,
     SplitButtonModule,
-    SpinnerModule
+    SpinnerModule,
+    routing
   ],
   providers: [{
     provide: EmployeeService,
-    useFactory: ProvidersManagment.selectCarService,
+    useFactory: (injector) => {
+      return injector.get(EmployeeServiceMock);
+    },
     deps: [Injector]
-  },EmployeeServiceImp, EmployeeServiceMock],
+  }, EmployeeServiceImp, EmployeeServiceMock],
   bootstrap: [AppComponent]
 })
 export class AppModule {
