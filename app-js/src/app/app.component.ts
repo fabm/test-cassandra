@@ -27,6 +27,7 @@ export class AppComponent implements OnInit {
   rowsNumb = 2;
   pageTokens: string[] = null;
   totalRecords = this.rowsNumb;
+  variavel = 'ola';
 
   allColls: { [key: string]: boolean } = {
     age: true,
