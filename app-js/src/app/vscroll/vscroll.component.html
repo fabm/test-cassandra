@@ -1,3 +1,17 @@
-<p>
-  vscroll works!
-</p>
+<p-tabView>
+  <p-tabPanel header="Header 1">
+    Tab 1
+  </p-tabPanel>
+  <p-tabPanel header="Header 2" [selected]="true">
+    <p-dataTable [value]="employees" scrollable="true" scrollHeight="300px" [rows]="rows" virtualScroll="virtualScroll" [style]="{'margin-top':'30px'}"
+      [lazy]="true" [totalRecords]="totalRecords" (onLazyLoad)="lazyLoad($event)" (onPage)=virtScroll($event)>
+      <p-header>Virtual Scrolling - 500000 Rows</p-header>
+      <p-column field="age" header="Age"></p-column>
+      <p-column field="salary" header="Salary"></p-column>
+      <p-column field="name" header="Name"></p-column>
+    </p-dataTable>
+  </p-tabPanel>
+  <p-tabPanel header="Header 3">
+    Tab 3
+  </p-tabPanel>
+</p-tabView>

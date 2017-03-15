@@ -53,12 +53,18 @@ import { EmployeeServiceMock } from "app/mock/employee.service.mock";
   ],
   providers: [{
     provide: EmployeeService,
-    useFactory: (injector) => {
-      return injector.get(EmployeeServiceMock);
-    },
+    useFactory: AppModule.getEmployeeService,
     deps: [Injector]
   }, EmployeeServiceImp, EmployeeServiceMock],
   bootstrap: [AppComponent]
 })
 export class AppModule {
+  private static USE_MOCK = true;
+  static getEmployeeService(injector:Injector){
+    if(AppModule.USE_MOCK){
+      return injector.get(EmployeeServiceMock);
+    }else{
+      return injector.get(EmployeeServiceImp);
+    }
+  }
 }

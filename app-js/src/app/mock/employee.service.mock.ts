@@ -3,10 +3,12 @@ import { Employee } from '../shared/employee.model';
 import { EmployeePage } from '../shared/employeePage.model';
 import { EmployeeService } from '../shared/employee.service';
 import { Observable } from 'rxjs/Observable';
+import { RecreatePageOptions } from "app/mock/recreate.page.options";
+import { Subscriber } from "rxjs/Subscriber";
 @Injectable()
 export class EmployeeServiceMock extends EmployeeService {
 
-    private pages = [
+    private pages: EmployeePage[] = [
         {
             nextPageToken: '1',
             employees: [
@@ -34,15 +36,50 @@ export class EmployeeServiceMock extends EmployeeService {
         super();
     }
 
+    recreatePages(options: RecreatePageOptions) {
+        let pages = []
+        let i = 0;
+        for (let p = 0; p < options.pages; p++) {
+            let employeePage: EmployeePage = {
+                employees: [],
+                nextPageToken: p + 1 < options.pages ? (p + 1).toString() : null
+            };
+
+
+            for (let r = 0; r < options.rows; r++) {
+                employeePage.employees.push({
+                    age: 20,
+                    id: p * options.rows,
+                    name: 'mock-name-p(' + p + ') r(' + r + ')',
+                    salary: Math.floor(Math.random() * 1000) + 1000
+                });
+            }
+            pages.push(employeePage);
+        }
+        this.pages = pages;
+    }
+
     load(pageToken?: string): Observable<EmployeePage> {
-        let pageMap = {
-            null: 0,
-            '1': 1,
-            '2': 2
+        if (!pageToken) {
+            pageToken = null;
+        }
+        let pageMap = (key?: string): number => {
+            if (key === null) {
+                return 0;
+            } else {
+                return Number(key);
+            }
         };
 
-        return new Observable(observer => {
-            setTimeout(() => observer.next(this.pages[pageMap[pageToken]]), 200);
+        let action = (page: EmployeePage, observer: Subscriber<EmployeePage>) => {
+            observer.next(page);
+            observer.complete();
+        }
+
+        return new Observable<EmployeePage>(observer => {
+            let key: number = pageMap(pageToken);
+            let page: EmployeePage = this.pages[key];
+            setTimeout(() => action(page, observer), 2000);
         });
     }
 

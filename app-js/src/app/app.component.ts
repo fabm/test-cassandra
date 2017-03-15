@@ -3,7 +3,9 @@ import { Component } from "@angular/core";
 @Component({
     selector: 'app-root',
     template: `
-    <p>hello world</p>
+    <p>Angular tests</p>
+    <a routerLink="home">home</a>
+    <a routerLink="vscroll">vscroll</a>
     <router-outlet></router-outlet>
     `
 })
