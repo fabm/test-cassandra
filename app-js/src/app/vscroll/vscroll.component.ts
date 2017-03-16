@@ -6,7 +6,7 @@ import { EmployeeServiceMock } from "app/mock/employee.service.mock";
 import { LazyLoadEvent } from "primeng/components/common/api";
 import { Employee } from "app/shared/employee.model";
 import { FilterMetadata } from 'primeng/components/common/api';
-import { Subscription } from "rxjs/Subscription";
+import { Observable } from "rxjs";
 
 @Component({
   selector: 'app-vscroll',
@@ -54,41 +54,40 @@ export class VscrollComponent implements OnInit, OnDestroy {
 
   }
 
-  private load(page: number, callback: (EmployeePage: EmployeePage) => void) {
+  private load(page: number): Observable<EmployeePage> {
     if (page < 0 || isNaN(page)) {
       throw "it\'s not possible to have negative pages";
     }
     if (typeof (this.tokens[page]) === 'undefined') {
       console.log('token doesn\'t exist', page);
-      this.load(page - 1, (employeePage) => this.es.load(employeePage.nextPageToken).subscribe(res => {
-        console.log('previews token', res.nextPageToken);
+      return this.load(page - 1).mergeMap(res => {
         this.tokens[page] = res.nextPageToken;
-        this.load(page - 1, callback);
-      }));
+        return this.load(page - 1)
+      });
     } else {
-      this.es.load(this.tokens[page]).subscribe(res => {
+      return this.es.load(this.tokens[page]).mergeMap(res => {
         console.log('loaded page', page);
-        res.employees = JSON.parse(JSON.stringify(res.employees));
+        let employees = JSON.parse(JSON.stringify(res.employees));
         this.tokens[page + 1] = res.nextPageToken;
-        callback(res);
+        return Observable.of({
+          nextPageToken: res.nextPageToken,
+          employees: employees
+        });
       });
     }
   }
 
   lazyLoad(event: LazyLoadEvent) {
     console.log(event);
+
     if (this.lastrows === event.first) {
-      console.log('cloning');
-      this.employees = JSON.parse(JSON.stringify(this.employees));
+        console.log('cloning');
+        this.employees = JSON.parse(JSON.stringify(this.employees));
     } else {
       let page = event.first / this.rows;
       console.log('page', page);
-      this.load(page, res => {
-        this.employees = res.employees;
-        this.load(page + 1, res2 => {
-          this.employees = this.employees.concat(res2.employees);
-        });
-      });
+
+      Observable.forkJoin(this.load(page), this.load(page+1)).subscribe(res=>this.employees = res[0].employees.concat(res[1].employees));
     }
     this.lastrows = event.first;
   }
