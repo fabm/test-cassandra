@@ -20,7 +20,7 @@ def executeNgCli = { List args ->
 }
 
 if (!("${project.basedir.absolutePath}/app-js/node_modules" as File).exists()) {
-    executeNodeCmd(["preinstall.js"])
+    executeNodeCmd(["${nodeModulesPath}/npm/cli.js",'install','.'])
 }
 executeNgCli(['build', '--prod'])
 def srcPath = "${project.basedir.absolutePath}/app-js/dist"
